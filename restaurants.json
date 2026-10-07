@@ -1,0 +1,5 @@
+[
+  {"name": "Otto Sushi", "cuisine": "Japanese", "price": 2, "kidFriendly": true, "area": "Redmond", "notes": "Veggie roll variety - Spicy miso is the move"},
+  {"name": "Cactus", "cuisine": "Mexican", "price": 2, "kidFriendly": true, "area": "Kirkland", "notes": "Great for a quick Saturday lunch"},
+  {"name": "Deru Market", "cuisine": "American", "price": 3, "kidFriendly": false, "area": "Kirkland", "notes": "Date night spot"}
+]
