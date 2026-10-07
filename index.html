@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekend Table</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+  select,button{font-size:1rem;padding:.5rem;margin:.25rem 0}
+  .card{border:1px solid #ddd;border-radius:8px;padding:1rem;margin:.75rem 0}
+  textarea{width:100%;height:10rem}
+</style>
+</head>
+<body>
+<h1>Weekend Table</h1>
+<p>Pick a few filters and get this weekend's restaurant ideas.</p>
+
+<label>Cuisine <select id="cuisine"><option value="">Any</option></select></label><br>
+<label>Max price
+  <select id="price"><option value="3">Any</option><option value="1">$</option><option value="2">$$</option></select>
+</label><br>
+<label><input type="checkbox" id="kids"> Kid-friendly only</label><br>
+<button id="pick">Pick for this weekend</button>
+<div id="results"></div>
+
+<h2>Want an AI opinion?</h2>
+<p>This copies a prompt with your filtered list. Paste it into Claude.</p>
+<button id="prompt">Copy prompt for Claude</button>
+<textarea id="promptBox" readonly></textarea>
+
+<script>
+let all = [];
+const $ = id => document.getElementById(id);
+
+function filtered() {
+  return all.filter(r =>
+    (!$("cuisine").value || r.cuisine === $("cuisine").value) &&
+    r.price <= +$("price").value &&
+    (!$("kids").checked || r.kidFriendly));
+}
+
+function pick() {
+  const list = filtered().sort(() => Math.random() - 0.5).slice(0, 3);
+  $("results").innerHTML = list.length
+    ? list.map(r => `<div class="card"><strong>${r.name}</strong> · ${r.cuisine} · ${"$".repeat(r.price)}<br>${r.area}<br><em>${r.notes}</em></div>`).join("")
+    : "<p>No matches. Try loosening a filter.</p>";
+}
+
+function buildPrompt() {
+  const list = filtered().map(r => `- ${r.name} (${r.cuisine}, ${"$".repeat(r.price)}, ${r.area}): ${r.notes}`).join("\n");
+  const text = `Here are restaurants I like:\n${list}\n\nPick the best 3 for this weekend and explain why. Then suggest 2 similar places I haven't tried.`;
+  $("promptBox").value = text;
+  navigator.clipboard.writeText(text);
+}
+
+fetch("restaurants.json").then(r => r.json()).then(data => {
+  all = data;
+  [...new Set(data.map(r => r.cuisine))].sort().forEach(c => $("cuisine").add(new Option(c, c)));
+});
+$("pick").onclick = pick;
+$("prompt").onclick = buildPrompt;
+</script>
+</body>
+</html>
+
+Step 3: Add your restaurant list
+
+Click Add file → Create new file, name it restaurants.json, paste this, and commit. These are placeholders, so replace them with real places you like (price is 1 for $, 2 for $$, 3 for $$$):
+
+json
+[
+  {"name": "Example Ramen House", "cuisine": "Japanese", "price": 2, "kidFriendly": true, "area": "Bellevue", "notes": "Spicy miso is the move"},
+  {"name": "Example Taqueria", "cuisine": "Mexican", "price": 1, "kidFriendly": true, "area": "Redmond", "notes": "Great for a quick Saturday lunch"},
+  {"name": "Example Steakhouse", "cuisine": "American", "price": 3, "kidFriendly": false, "area": "Seattle", "notes": "Date night spot"}
+]
